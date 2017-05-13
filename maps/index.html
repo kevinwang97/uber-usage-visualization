@@ -22,24 +22,9 @@
     <div id="map"></div>
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script>
-// $(function () {
-//     $.getJSON(
-//         "http://localhost:3000/myjsonfile.json",
-//         function (data, err) {
-//             console.log(data, err);
-//         });
+// $.getJSON('myjsonfile.json', function(data) {
+//   console.log(data);
 // });
-var req = new XMLHttpRequest();
-
-// Feature detection for CORS
-    req.open('GET', 'http://localhost:3000/myjsonfile.json', true);
-    // Just like regular ol' XHR
-    req.onload = function() {
-        if (req.readyState === 4) {
-          console.log(req.responseText);
-        }
-    };
-    req.send();
 </script>
     <script>
     var map;
@@ -52,27 +37,26 @@ var req = new XMLHttpRequest();
         mapTypeId: 'terrain'
       });
 
-      // Define the LatLng coordinates for the polygon.
-      var triangleCoords = [
-          {lat: 40.63128415, lng: -73.97605079},
-          {lat: 40.6307549, lng: -73.97716655},
-          {lat: 40.62987974, lng: -73.97699992}
-      ];
+      var ntaPolygons = [];
 
-
-      // Construct the polygon.
-      var bermudaTriangle = new google.maps.Polygon({
-        paths: triangleCoords,
-        strokeColor: '#FF0000',
-        strokeOpacity: 0.8,
-        strokeWeight: 3,
-        fillColor: '#000000',
-        fillOpacity: 0.35
+      $.getJSON('myjsonfile.json', function(data) {
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+          var polygon = new google.maps.Polygon({
+            paths: data[i].coords,
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 0,
+            fillColor: '#000000',
+            fillOpacity: 0.35
+          });
+          polygon.setMap(map);
+          ntaPolygons[i] = polygon;
+        }
       });
-      bermudaTriangle.setMap(map);
 
       // Add a listener for the click event.
-      bermudaTriangle.addListener('click', showArrays);
+      // bermudaTriangle.addListener('click', showArrays);
 
       infoWindow = new google.maps.InfoWindow;
     }
