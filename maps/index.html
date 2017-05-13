@@ -30,6 +30,22 @@
     var map;
     var infoWindow;
 
+    function colorNTA(num) {
+      console.log('Num: ',num);
+      var gradient = ["#F2FF00", "#F2FA00", "#F2F600", "#F2F200", "#F2EE00", "#F3EA00", "#F3E600", "#F3E200", "#F3DE00", "#F3DA00", "#F4D600", "#F4D200", "#F4CE00", "#F4CA00", "#F4C600", "#F5C200", "#F5BE00", "#F5BA00", "#F5B600", "#F5B200", "#F6AE00", "#F6AA00", "#F6A500", "#F6A100", "#F69D00", "#F79900", "#F79500", "#F79100", "#F78D00", "#F78900", "#F88500", "#F88100", "#F87D00", "#F87900", "#F97500", "#F97100", "#F96D00", "#F96900", "#F96500", "#FA6100", "#FA5D00", "#FA5900", "#FA5500", "#FA5000", "#FB4C00", "#FB4800", "#FB4400", "#FB4000", "#FB3C00", "#FC3800", "#FC3400", "#FC3000", "#FC2C00", "#FC2800", "#FD2400", "#FD2000", "#FD1C00", "#FD1800", "#FD1400", "#FE1000", "#FE0C00", "#FE0800", "#FE0400", "#FF0000"]
+      var range = 6.547287162 - 0.0148465;
+      var step = 1/64;
+      for (var i = 1; i <= 64; i++) {
+        var stepVal = i * step * range + 0.0148465;
+        console.log('StepVal:', stepVal);
+        if (num <= stepVal) {
+          console.log('Color:', gradient[i-1]);
+          return gradient[i-1];
+        }
+      }
+      return '#000000'; // error
+    }
+
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
         zoom: 11,
@@ -38,21 +54,29 @@
       });
 
       var ntaPolygons = [];
-
       $.getJSON('myjsonfile.json', function(data) {
-        console.log(data);
-        for (var i = 0; i < data.length; i++) {
-          var polygon = new google.maps.Polygon({
-            paths: data[i].coords,
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 0,
-            fillColor: '#000000',
-            fillOpacity: 0.35
-          });
-          polygon.setMap(map);
-          ntaPolygons[i] = polygon;
-        }
+        $.getJSON('uber.json', function(uberData) {
+          console.log(data.length);
+          console.log(uberData.length);
+          for (var i = 0; i < data.length; i++) {
+            var ntaId = data[i].id;
+            var uberRow = uberData.find(function(obj) {
+              return obj.nta_id === " " + ntaId;
+            });
+            if (uberRow) {
+              var polygon = new google.maps.Polygon({
+                paths: data[i].coords,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0,
+                strokeWeight: 0,
+                fillColor: colorNTA(uberRow.metric),
+                fillOpacity: 0.5
+              });
+              polygon.setMap(map);
+              ntaPolygons[i] = polygon;
+            }
+          }
+        });
       });
 
       // Add a listener for the click event.
